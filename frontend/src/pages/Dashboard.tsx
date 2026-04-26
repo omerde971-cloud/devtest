@@ -1,13 +1,51 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth.store'
+import { apiClient } from '@/api/client'
+import FileUpload from '@/components/FileUpload'
+import { Analysis } from '@/types'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
+  const [analyses, setAnalyses] = useState<Analysis[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchAnalyses()
+  }, [])
+
+  const fetchAnalyses = async () => {
+    try {
+      const data = await apiClient.getAnalyses()
+      setAnalyses(data)
+    } catch (error) {
+      console.error('Failed to fetch analyses:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleLogout = () => {
     logout()
     navigate('/login')
+  }
+
+  const handleUploadComplete = (newAnalysis: Analysis) => {
+    setAnalyses([newAnalysis, ...analyses])
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return 'bg-green-100 text-green-800'
+      case 'processing':
+        return 'bg-blue-100 text-blue-800'
+      case 'failed':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
   }
 
   return (
@@ -19,7 +57,9 @@ export default function Dashboard() {
             <h1 className="text-2xl font-bold text-gray-900">DevTest</h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-gray-700">Hoş geldin, <strong>{user?.username || user?.email}</strong></span>
+            <span className="text-gray-700">
+              Hoş geldin, <strong>{user?.username || user?.email}</strong>
+            </span>
             <button
               onClick={handleLogout}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium"
@@ -32,43 +72,56 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Dashboard</h2>
-          <p className="text-gray-600 mb-6">
-            Phase 1: Auth tamamlandı! Sırada file upload ve analysis engines var.
-          </p>
+        {/* Upload Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Yeni Analiz</h2>
+          <FileUpload onUploadComplete={handleUploadComplete} />
+        </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-              <h3 className="text-gray-700 font-medium mb-2">Toplam Analiz</h3>
-              <p className="text-3xl font-bold text-blue-600">0</p>
-              <p className="text-sm text-gray-500 mt-1">Bu ay</p>
-            </div>
-
-            <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-              <h3 className="text-gray-700 font-medium mb-2">Başarılı</h3>
-              <p className="text-3xl font-bold text-green-600">0</p>
-              <p className="text-sm text-gray-500 mt-1">Tamamlanan</p>
-            </div>
-
-            <div className="bg-purple-50 rounded-lg p-6 border border-purple-200">
-              <h3 className="text-gray-700 font-medium mb-2">Plan</h3>
-              <p className="text-lg font-bold text-purple-600">Free</p>
-              <p className="text-sm text-gray-500 mt-1">Upgrade et</p>
-            </div>
+        {/* Analyses List */}
+        <div className="bg-white rounded-lg shadow">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h3 className="text-lg font-bold text-gray-900">Geçmiş Analizler</h3>
           </div>
 
-          {/* Next Steps */}
-          <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-            <h3 className="font-bold text-yellow-900 mb-2">🚀 Sırada Neler Var?</h3>
-            <ul className="text-yellow-800 space-y-1 text-sm">
-              <li>✅ Auth Pages (Login/Register) - Done!</li>
-              <li>🔄 File Upload Handler</li>
-              <li>🔄 iOS IPA Parser</li>
-              <li>🔄 Android APK Parser</li>
-            </ul>
-          </div>
+          {loading ? (
+            <div className="p-6 text-center text-gray-500">Yükleniyor...</div>
+          ) : analyses.length === 0 ? (
+            <div className="p-6 text-center text-gray-500">
+              Henüz analiz yapılmamış. Yukarıdan bir dosya yükleyerek başla.
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-200">
+              {analyses.map((analysis) => (
+                <div key={analysis.id} className="p-6 hover:bg-gray-50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">
+                        {analysis.fileName}
+                      </h4>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                        <span>{analysis.platform.toUpperCase()}</span>
+                        <span>{(analysis.fileSize / 1024 / 1024).toFixed(2)}MB</span>
+                        <span>{new Date(analysis.createdAt).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                          analysis.status
+                        )}`}
+                      >
+                        {analysis.status === 'queued' && '⏳ Sıraya alındı'}
+                        {analysis.status === 'processing' && '⚙️ İşleniyor'}
+                        {analysis.status === 'completed' && '✅ Tamamlandı'}
+                        {analysis.status === 'failed' && '❌ Başarısız'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
