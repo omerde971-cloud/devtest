@@ -217,7 +217,6 @@ MIT License — see [LICENSE](LICENSE) file.
 
 ## 📞 Get Help
 
-- 📧 Email: omerde971@gmail.com
 - 🐛 Issues: [GitHub Issues](https://github.com/omerde971-cloud/devtest/issues)
 - 💬 Discussions: [GitHub Discussions](https://github.com/omerde971-cloud/devtest/discussions)
 
