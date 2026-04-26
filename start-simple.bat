@@ -62,6 +62,12 @@ if errorlevel 1 (
     pause
     exit /b 1
 )
+REM Generate Prisma client
+echo Generating Prisma client...
+call npx prisma generate
+if errorlevel 1 (
+    echo [WARN] Prisma generate had issues, continuing anyway...
+)
 call npm run build
 if errorlevel 1 (
     echo ERROR: Backend build failed
