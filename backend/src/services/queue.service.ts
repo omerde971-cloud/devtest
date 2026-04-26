@@ -61,7 +61,7 @@ analysisQueue.process(async (job) => {
       data: {
         status: 'completed',
         healthScore: report.healthScore,
-        reportData: report as any,
+        reportData: JSON.stringify(report),
         completedAt: new Date(),
       },
     });

@@ -37,7 +37,7 @@ model Analysis {
   platform        String   // ios, android
   status          String   @default("queued") // queued, processing, completed, failed
   healthScore     Int?
-  reportData      Json?    // JSONB - full analysis result
+  reportData      String?  // JSON string - full analysis result
   fileR2Key       String?  // Cloudflare R2 path
   createdAt       DateTime @default(now())
   completedAt     DateTime?
