@@ -3,10 +3,15 @@
 ## ⚡ 30-Second Setup
 
 ### **Windows Users:**
-1. Double-click `start.bat`
-2. Wait for "DevTest server running on http://localhost:3001"
-3. Browser opens automatically
+1. Double-click `start-simple.bat` (recommended) or `start.bat`
+2. Wait for dependencies to install and build (2-3 minutes first time)
+3. Browser opens automatically to http://localhost:3001
 4. Done! 🎉
+
+**Notes:**
+- If you have Docker installed, PostgreSQL + Redis will start automatically
+- If not, the script will skip database setup (you can add it later)
+- Environment file is auto-created if missing
 
 ### **Mac/Linux Users:**
 ```bash

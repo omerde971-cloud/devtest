@@ -226,7 +226,7 @@ Brief description of changes
 * Check [SETUP.md](SETUP.md) for setup questions
 * Check [QUICK_START.md](QUICK_START.md) for quick reference
 * Open an issue for discussions
-* Email: yedekkcaner@gmail.com
+* Email: omerde971@gmail.com
 
 ---
 
