@@ -4,6 +4,7 @@ import { AppError } from './error-handler';
 
 export interface AuthRequest extends Request {
   userId?: string;
+  file?: Express.Multer.File;
 }
 
 export const verifyToken = (
