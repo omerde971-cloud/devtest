@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { errorHandler } from './middleware/error-handler';
 import { authRoutes } from './routes/auth';
 import { analysesRoutes } from './routes/analyses';
+import { billingRoutes } from './routes/billing';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/analyses', analysesRoutes);
+app.use('/api/billing', billingRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

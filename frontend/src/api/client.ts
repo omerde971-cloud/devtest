@@ -88,6 +88,12 @@ class ApiClient {
     const { data } = await this.client.delete(`/analyses/${id}`)
     return data
   }
+
+  // Billing endpoints
+  async createCheckoutSession(plan: 'pro' | 'plus') {
+    const { data } = await this.client.post('/billing/checkout', { plan })
+    return data
+  }
 }
 
 export const apiClient = new ApiClient()

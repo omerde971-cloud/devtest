@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth.store'
 import { apiClient } from '@/api/client'
 import FileUpload from '@/components/FileUpload'
@@ -93,10 +93,10 @@ export default function Dashboard() {
           ) : (
             <div className="divide-y divide-gray-200">
               {analyses.map((analysis) => (
-                <div key={analysis.id} className="p-6 hover:bg-gray-50">
+                <div key={analysis.id} className="p-6 hover:bg-gray-50 transition">
                   <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">
+                    <Link to={`/reports/${analysis.id}`} className="flex-1 cursor-pointer">
+                      <h4 className="font-medium text-blue-600 hover:text-blue-700">
                         {analysis.fileName}
                       </h4>
                       <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
@@ -104,7 +104,7 @@ export default function Dashboard() {
                         <span>{(analysis.fileSize / 1024 / 1024).toFixed(2)}MB</span>
                         <span>{new Date(analysis.createdAt).toLocaleDateString()}</span>
                       </div>
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-3">
                       <span
                         className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
@@ -116,6 +116,11 @@ export default function Dashboard() {
                         {analysis.status === 'completed' && '✅ Tamamlandı'}
                         {analysis.status === 'failed' && '❌ Başarısız'}
                       </span>
+                      {analysis.status === 'completed' && analysis.healthScore && (
+                        <span className="text-lg font-bold text-green-600">
+                          {analysis.healthScore}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

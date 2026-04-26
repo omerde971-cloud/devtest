@@ -3,9 +3,12 @@ import { Toaster } from 'react-hot-toast'
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
 import { useAuthStore } from '@/stores/auth.store'
 
+import Landing from '@/pages/Landing'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import Dashboard from '@/pages/Dashboard'
+import Pricing from '@/pages/Pricing'
+import Report from '@/pages/Report'
 import ProtectedRoute from '@/components/ProtectedRoute'
 
 const queryClient = new QueryClient()
@@ -18,6 +21,7 @@ export default function App() {
       <Router>
         <Routes>
           {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
           <Route
             path="/login"
             element={token ? <Navigate to="/dashboard" replace /> : <Login />}
@@ -26,6 +30,7 @@ export default function App() {
             path="/register"
             element={token ? <Navigate to="/dashboard" replace /> : <Register />}
           />
+          <Route path="/pricing" element={<Pricing />} />
 
           {/* Protected Routes */}
           <Route
@@ -36,10 +41,17 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/reports/:id"
+            element={
+              <ProtectedRoute>
+                <Report />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Redirects */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
         <Toaster
