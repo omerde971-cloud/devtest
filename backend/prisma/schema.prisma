@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  username          String?  @unique
+  passwordHash      String?
+  googleId          String?  @unique
+  emailVerified     Boolean  @default(false)
+  subscriptionTier  String   @default("free") // free, pro, enterprise
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  analyses      Analysis[]
+  subscription  Subscription?
+  shareTokens   ShareToken[]
+  usageMonthly  UsageMonthly[]
+
+  @@map("users")
+}
+
+model Analysis {
+  id              String   @id @default(cuid())
+  userId          String
+  fileName        String
+  fileSize        BigInt?
+  format          String   // ipa, apk, aab, dsym, xcarchive, app
+  platform        String   // ios, android
+  status          String   @default("queued") // queued, processing, completed, failed
+  healthScore     Int?
+  reportData      Json?    // JSONB - full analysis result
+  fileR2Key       String?  // Cloudflare R2 path
+  createdAt       DateTime @default(now())
+  completedAt     DateTime?
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shareTokens ShareToken[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("analyses")
+}
+
+model Subscription {
+  id                      String   @id @default(cuid())
+  userId                  String   @unique
+  stripeCustomerId        String?  @unique
+  stripeSubscriptionId    String?  @unique
+  plan                    String   // free, pro, enterprise
+  status                  String   // active, cancelled, expired
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model UsageMonthly {
+  id        String   @id @default(cuid())
+  userId    String
+  format    String   // ipa, apk, aab, dsym, xcarchive, app
+  month     DateTime // YYYY-MM-01
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, format, month])
+  @@index([userId])
+  @@map("usage_monthly")
+}
+
+model ShareToken {
+  id          String   @id @default(cuid())
+  analysisId  String
+  token       String   @unique
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+
+  analysis Analysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+  @@map("share_tokens")
+}

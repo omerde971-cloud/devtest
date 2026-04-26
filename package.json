@@ -1,0 +1,27 @@
+{
+  "name": "devtest-monorepo",
+  "version": "0.1.0",
+  "description": "DevTest - iOS & Android app analysis platform",
+  "packageManager": "pnpm@8.0.0",
+  "private": true,
+  "scripts": {
+    "install": "pnpm install -r",
+    "dev": "pnpm -r --parallel dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "lint:fix": "pnpm -r lint:fix",
+    "test": "pnpm -r test",
+    "db:setup": "cd backend && pnpm db:migrate && pnpm db:generate",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "keywords": [
+    "ios",
+    "android",
+    "app-analysis",
+    "testing",
+    "crash-reporting"
+  ],
+  "author": "DevTest Team",
+  "license": "MIT"
+}
