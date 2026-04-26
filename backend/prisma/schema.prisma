@@ -23,7 +23,6 @@ model User {
 
   analyses      Analysis[]
   subscription  Subscription?
-  shareTokens   ShareToken[]
   usageMonthly  UsageMonthly[]
 
   @@map("users")
