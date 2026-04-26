@@ -1,0 +1,1 @@
+# DevTest\n\niOS + Android App Testing & Analysis Platform\n\n## Quick Start\n\n```bash\npnpm install\npnpm --filter backend dev\npnpm --filter frontend dev\n```\n\n## Structure\n\n- `backend/` - Node.js + Express API\n- `frontend/` - React + TypeScript SPA\n
