@@ -68,6 +68,13 @@ call npx prisma generate
 if errorlevel 1 (
     echo [WARN] Prisma generate had issues, continuing anyway...
 )
+
+REM Migrate database
+echo Pushing schema to database...
+call npx prisma db push --skip-generate
+if errorlevel 1 (
+    echo [WARN] Prisma migration had issues, continuing anyway...
+)
 call npm run build
 if errorlevel 1 (
     echo ERROR: Backend build failed
