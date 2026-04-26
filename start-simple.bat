@@ -1,5 +1,9 @@
 @echo off
+REM DevTest - Simple Windows Startup Script
+REM Uses npm instead of pnpm for better compatibility
+
 setlocal enabledelayedexpansion
+cd /d "%~dp0"
 
 title DevTest - Starting...
 color 0A
@@ -22,19 +26,18 @@ if errorlevel 1 (
 )
 echo [OK] Node.js installed
 
-REM Check Docker
+REM Check Docker (optional)
 docker --version >nul 2>&1
 if errorlevel 1 (
     echo [WARN] Docker not found - skipping database setup
-    echo If you encounter database errors, install Docker from: https://www.docker.com/
 ) else (
     echo [OK] Docker found
-    echo Starting database services (PostgreSQL + Redis)...
+    echo Starting database services...
     call docker-compose up -d
     timeout /t 3 >nul
 )
 
-REM Create .env if not exists
+REM Create .env file if missing
 if not exist "backend\.env" (
     echo Creating backend/.env with defaults...
     (
@@ -44,26 +47,21 @@ if not exist "backend\.env" (
         echo NODE_ENV=development
         echo PORT=3001
         echo FRONTEND_URL=http://localhost:5173
-    ) > "backend\.env"
+    ) > backend\.env
     echo [OK] Created backend/.env
 )
-
-REM Install dependencies
-echo.
-echo Installing dependencies with npm...
-call npm install --legacy-peer-deps
-if errorlevel 1 (
-    echo ERROR: npm install failed
-    pause
-    exit /b 1
-)
-echo [OK] Dependencies installed
 
 REM Build backend
 echo.
 echo Building backend...
 cd backend
 call npm install --legacy-peer-deps
+if errorlevel 1 (
+    echo ERROR: Failed to install backend dependencies
+    cd ..
+    pause
+    exit /b 1
+)
 call npm run build
 if errorlevel 1 (
     echo ERROR: Backend build failed
@@ -79,6 +77,12 @@ echo.
 echo Building frontend...
 cd frontend
 call npm install --legacy-peer-deps
+if errorlevel 1 (
+    echo ERROR: Failed to install frontend dependencies
+    cd ..
+    pause
+    exit /b 1
+)
 call npm run build
 if errorlevel 1 (
     echo ERROR: Frontend build failed
@@ -89,7 +93,7 @@ if errorlevel 1 (
 echo [OK] Frontend built
 cd ..
 
-REM Start server
+REM Start the application
 echo.
 echo ============================================
 echo   Starting DevTest Server...
@@ -97,10 +101,7 @@ echo   Opening: http://localhost:3001
 echo ============================================
 echo.
 echo The application will open in your browser.
-echo If it doesn't open automatically, visit:
-echo http://localhost:3001
-echo.
-echo Press Ctrl+C to stop the server.
+echo Press Ctrl+C in this window to stop the server.
 echo.
 
 timeout /t 3 >nul
